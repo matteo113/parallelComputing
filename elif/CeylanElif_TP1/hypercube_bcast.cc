@@ -1,0 +1,48 @@
+// Hypercube Broadcast - Elif Ceylan TP1
+
+#include <mpi.h>
+#include <iostream>
+#include <vector>
+#include <math.h>
+
+// Implementation of the simple broadcast using
+// the examples and explications given in TP1 and Serie 2
+
+int main(int argc, char **argv) {
+  int myRank, nProc;
+
+  MPI_Status status;
+  MPI_Init(&argc, &argv);
+  MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
+  MPI_Comm_size(MPI_COMM_WORLD, &nProc);
+
+  int dim = log2(nProc);
+
+  MPI_Barrier(MPI_COMM_WORLD);
+  double start = MPI_Wtime();
+
+  std::vector<int> vector(100000000, 0);
+
+  if(myRank == 0)
+      vector = std::vector<int>(100000000, 1);
+
+  for(int step = 0; step < dim; step++) {
+
+      if(myRank >>  step == 0) {
+        int voisin = myRank + pow(2,step);
+        MPI_Send(vector.data(), vector.size(), MPI_INT, voisin, 0, MPI_COMM_WORLD);
+      }
+      if(myRank >> step == 1) {
+        MPI_Recv(vector.data(), vector.size(), MPI_INT, MPI_ANY_SOURCE, 0,MPI_COMM_WORLD, &status);
+      }
+  }
+
+  //std::cout << "myRank : " << myRank << ", value in the vector : " << vector.at(0) << std::endl;
+
+  MPI_Barrier(MPI_COMM_WORLD);
+  double end = MPI_Wtime();
+
+  if(myRank==0) std::cout << "temps de l'operation : " << end-start << "[s]" << std::endl;
+
+  MPI_Finalize();
+}
