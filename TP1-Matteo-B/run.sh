@@ -1,10 +1,14 @@
 #!/bin/sh
-#SBATCH -J 1core
-#SBATCH -o 1core1.o%j
-#SBATCH --ntasks=1
-#SBATCH -p shared,cui
-#SBATCH -t 00:30:00
-#SBATCH --constraint=E5-2660V0
+#SBATCH -J 64core
+#SBATCH -o 3--64core1.o%j
+#SBATCH --ntasks=64
+#SBATCH -p shared, cui
+#SBATCH --mail-user=Matteo.Besancon@etu.unige.ch
+#SBATCH --mail-type=ALL
+#SBATCH -t 00:15:00
+
+module load foss/2018a
+module load CUDA
 
 echo "============================================="
 echo "mpi_bcast"
@@ -15,16 +19,7 @@ srun ./mpi
 srun ./mpi
 srun ./mpi
 srun ./mpi
-srun ./mpi
-srun ./mpi
-srun ./mpi
-srun ./mpi
-srun ./mpi
-srun ./mpi
-srun ./mpi
-srun ./mpi
-srun ./mpi
-srun ./mpi
+
 
 echo "============================================="
 echo "simple_bcast"
@@ -35,16 +30,8 @@ srun ./simple
 srun ./simple
 srun ./simple
 srun ./simple
-srun ./simple
-srun ./simple
-srun ./simple
-srun ./simple
-srun ./simple
-srun ./simple
-srun ./simple
-srun ./simple
-srun ./simple
-srun ./simple
+
+
 
 echo "============================================="
 echo "ring_bcast"
@@ -55,31 +42,12 @@ srun ./ring
 srun ./ring
 srun ./ring
 srun ./ring
-srun ./ring
-srun ./ring
-srun ./ring
-srun ./ring
-srun ./ring
-srun ./ring
-srun ./ring
-srun ./ring
-srun ./ring
-srun ./ring
+
 
 echo "============================================="
 echo "hypercube_bcast"
 echo "============================================="
 
-srun ./hypercube
-srun ./hypercube
-srun ./hypercube
-srun ./hypercube
-srun ./hypercube
-srun ./hypercube
-srun ./hypercube
-srun ./hypercube
-srun ./hypercube
-srun ./hypercube
 srun ./hypercube
 srun ./hypercube
 srun ./hypercube
