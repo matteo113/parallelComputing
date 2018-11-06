@@ -24,6 +24,7 @@ int myNumbLine(int myRank, int nbProc, int dimY){
 	}
 }
 
+// Save an Array2D to a .dat file
 void save(Array2D<double> &matrix, std::string name) {
   std::ofstream file(name.c_str());
   for (int iY=0; iY<matrix.sizeY(); ++iY) {

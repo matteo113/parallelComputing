@@ -1,7 +1,10 @@
 all: tp2
 
 tp2: src/tp2.cc src/Array2D.hpp
-	mpiCC -o tp2 src/tp2.cc
+	mpiCC -o laplace src/tp2.cc
 
 clean:
-	rm tp2
+	rm laplace
+
+cleandat:
+	rm *.dat
