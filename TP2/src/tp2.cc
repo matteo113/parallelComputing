@@ -11,14 +11,9 @@
 
 //Returns the number of lines atributed to a process given its process number
 int myNumbLine(int myRank, int nbProc, int dimY){
-	int tmp = (int)floor((double)(dimY-2)/(double)(nbProc-1));
+	int tmp = (int)floor((double)(dimY-2)/(double)(nbProc));
 
-	// The process 0 is the master process so it doesn't gat any lines
-	if (myRank == 0) {
-		return 0;
-	}
-
-	else if (myRank-1<(dimY-2)%(nbProc-1)){
+	 if (myRank<(dimY-2)%(nbProc)){
 		return tmp+1;
 	}
 	else if (myRank < nbProc){
@@ -60,15 +55,15 @@ int main(int argc, char **argv) {
 
 		size_vec[i] = nb_line[i] * dimX;
 
-		if (i > dimY - 2){
-			nProc = i-1;
+		if (i >= dimY - 2){
+			nProc = i;
 			break;
 		}
 
-		if (i > 1) {
+		if (i > 0) {
 			disp[i] = disp[i-1] + size_vec[i-1];
 		}
-		else if (i == 1){
+		else if (i == 0){
 			disp[i] = dimX;
 		}
 	}
@@ -92,10 +87,7 @@ int main(int argc, char **argv) {
 	std::vector<double> first(dimX, 0);
 	std::vector<double> last(dimX, 0);
 
-
-	//Master node
-	if (myRank == 0){
-
+	if (myRank == 0) {
 		//initiate both matrix
 		for (int iX=0; iX<dimX; iX++) {      // conditions aux bords:
 				heat(iX,0) = 0;                 // 0 en haut
@@ -105,23 +97,33 @@ int main(int argc, char **argv) {
 				heat(0,iY)      = 0.;           // 0 a gauche
 				heat(dimX-1,iY) = 1.;           // 1 a droite
 		}
+	}
+
+	if(myRank >= dimY-2){
+		if (dimY == 2) {
+			if (myRank == 0) {
+				save(heat, "chaleur.dat");
+			}
+		}
+		MPI_Finalize();
+		exit(0);
+	}
+
+	//Master node
+	if (myRank == 0){
 
 		// Set first and last line for master matrix
 		for (int iX = 0; iX < dimX; iX++) {
-			first[iX] = heat(iX,0);
+			above[iX] = heat(iX,0);
 			last[iX] = heat(iX, dimY-1);
 		}
 
 		//send first and last line
-		MPI_Send(first.data(), first.size(), MPI_DOUBLE, 1, 0, MPI_COMM_WORLD);
 		MPI_Send(last.data(), last.size(), MPI_DOUBLE, nProc-1, 0, MPI_COMM_WORLD);
 	}
 
 
 	//Receive first and last line
-	if (myRank == 1) {
-		MPI_Recv(above.data(), above.size(), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &status);
-	}
 	if (myRank == nProc-1) {
 		MPI_Recv(under.data(), under.size(), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &status);
 	}
@@ -130,7 +132,7 @@ int main(int argc, char **argv) {
 	MPI_Scatterv(heat.data(), size_vec.data(), disp.data(), MPI_DOUBLE, subHeat.data(), size_vec[myRank], MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
 	//Slave nodes
-	if (myRank > 0) {
+//	if (myRank > 0) {
 
 	//	MPI_Recv(&subHeat, nbLine * subHeat.sizeY(), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &status);
 
@@ -157,12 +159,12 @@ int main(int argc, char **argv) {
 			}
 
 			//Receiving line above
-			if (myRank != 1) {
+			if (myRank != 0) {
 				MPI_Recv(above.data(), above.size(), MPI_DOUBLE, myRank-1, 0, MPI_COMM_WORLD, &status);
 			}
 
 			//Sending first line
-			if (myRank != 1) {
+			if (myRank != 0) {
 				MPI_Send(first.data() , first.size(), MPI_DOUBLE, myRank-1, 0, MPI_COMM_WORLD);
 			}
 
@@ -175,12 +177,14 @@ int main(int argc, char **argv) {
 
 			for (int iX = 1; iX < dimX - 1; iX++){
 				for (int iY = 0; iY < nb_line[myRank]; iY++){
-					if (iY == 0) {
+					if (nb_line[myRank] == 1){
+						subTmp(iX, iY) = 0.25*(subHeat(iX-1,iY) + subHeat(iX+1, iY) + above[iX] + under[iX]);
+					}
+					else if (iY == 0) {
 						subTmp(iX, iY) = 0.25*(subHeat(iX-1,iY) + subHeat(iX+1, iY) + above[iX] + subHeat(iX,iY+1));
 					}
 					else if (iY == nb_line[myRank] - 1){
 						subTmp(iX, iY) = 0.25*(subHeat(iX-1,iY) + subHeat(iX+1, iY) + subHeat(iX,iY-1) + under[iX]);
-
 					}
 					else {
 						subTmp(iX, iY) = 0.25*(subHeat(iX-1,iY) + subHeat(iX+1, iY) + subHeat(iX,iY-1) + subHeat(iX,iY+1));
@@ -195,7 +199,7 @@ int main(int argc, char **argv) {
 
 
 		// ADD send back to master the results
-	}
+//	}
 
 	MPI_Gatherv(subHeat.data(), size_vec[myRank], MPI_DOUBLE, heat.data(), size_vec.data(), disp.data(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
