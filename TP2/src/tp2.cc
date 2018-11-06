@@ -115,16 +115,24 @@ int main(int argc, char **argv) {
 		// Set first and last line for master matrix
 		for (int iX = 0; iX < dimX; iX++) {
 			above[iX] = heat(iX,0);
-			last[iX] = heat(iX, dimY-1);
+			if (nProc == 1) {
+				under[iX] = heat(iX, dimY-1);
+			}
+			else{
+				last[iX] = heat(iX, dimY-1);
+			}
 		}
 
 		//send first and last line
-		MPI_Send(last.data(), last.size(), MPI_DOUBLE, nProc-1, 0, MPI_COMM_WORLD);
+		if(nProc != 1){
+			MPI_Send(last.data(), last.size(), MPI_DOUBLE, nProc-1, 0, MPI_COMM_WORLD);
+		}
+
 	}
 
 
 	//Receive first and last line
-	if (myRank == nProc-1) {
+	if (myRank == nProc-1 && nProc != 1) {
 		MPI_Recv(under.data(), under.size(), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &status);
 	}
 
