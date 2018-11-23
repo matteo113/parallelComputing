@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	// resizung Vectors given the new number of process
+	// resizing Vectors given the new number of process
 	nb_line.resize(nProc);
 	size_vec.resize(nProc);
 	disp.resize(nProc);
