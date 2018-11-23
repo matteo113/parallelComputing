@@ -1,10 +1,10 @@
-all: tp2
+all: tp3
 
-tp2: src/tp2.cc src/Array2D.hpp
-	mpiCC -o laplace src/tp2.cc
+tp3: src/main.cpp src/Array2D.hpp src/Barrier.hpp
+	 g++ -o laplace_thread src/main.cpp -pthread -g
 
 clean:
-	rm laplace
+	rm laplace_thread
 
 cleandat:
 	rm *.dat

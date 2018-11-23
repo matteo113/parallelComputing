@@ -1,9 +1,9 @@
-#include <mpi.h>
 #include <iostream>
 #include <vector>
 #include <math.h>
 #include <stdlib.h>
 #include <iterator>
+#include <thread>
 #include <fstream>
 
 #include "Array2D.hpp"
@@ -44,7 +44,7 @@ void laplace(int dimX, int dimY, int iteration, int threadNb, int nb_line, int f
 
 		for (int y = first; y < first + nb_line; y++) {
 			for (int x = 1; x < dimX -1; x++) {
-				tmp(x, y) = 0.25*( heat(iX-1,iY) + heat(iX+1,iY)+ heat(iX,iY-1) + heat(iX,iY+1) );
+				tmp(x, y) = 0.25*( heat(x-1,y) + heat(x+1,y)+ heat(x,y-1) + heat(x,y+1) );
 			}
 		}
 		barrier.wait();
@@ -55,20 +55,12 @@ void laplace(int dimX, int dimY, int iteration, int threadNb, int nb_line, int f
 }
 
 int main(int argc, char **argv) {
-	int myRank, nProc;
-
-	// MPI Initialisation
-	MPI_Init(&argc, &argv);
-	MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
-	MPI_Comm_size(MPI_COMM_WORLD, &nProc);
-
-	MPI_Status status;
 
 	// Argument parsing
 	const int dimX = atoi(argv[1]);
 	const int dimY = atoi(argv[2]);
 	const int iteration = atoi(argv[3]);
-	const int nThread = atoi(argv[4]);
+	int nThread = atoi(argv[4]);
 
 	std::vector<int> nb_line(nThread);
 	std::vector<int> first(nThread);
@@ -94,16 +86,16 @@ int main(int argc, char **argv) {
 
 	// resizing Vectors given the new number of thread
 	nb_line.resize(nThread);
-	disp.resize(nThread);
+	first.resize(nThread);
 
 	heat.resize(dimX, dimY);
 	tmp.resize(dimX, dimY);
 
 	for (int iX=0; iX<dimX; iX++) {      // conditions aux bords:
 			heat(iX,0) = 0;                 // 0 en haut
-			tmp(ix,0) = 0;
+			tmp(iX,0) = 0;
 			heat(iX,dimY-1) = 1;            // 1 en bas
-			tmp(ix,dimX-1) = 1;
+			tmp(iX,dimX-1) = 1;
 	}
 
 	for (int iY=0; iY<dimY; iY++) {
@@ -120,5 +112,8 @@ int main(int argc, char **argv) {
 	for (int i = 0; i < nThread; i++) {
 		threads.push_back(std::thread(laplace, dimX, dimY, iteration, i, nb_line[i], first[i]));
 	}
+
+	for(auto& t : threads) t.join();
+	save(heat, "chaleur.dat");
 
 }
