@@ -1,10 +1,12 @@
 #!/bin/sh
-#SBATCH --job-name=laplace
-#SBATCH --output=test2000x2000x2000.o%j
-#SBATCH --ntasks=20
-#SBATCH --partition=shared,cui
-#SBATCH --time=00:01:00
+#SBATCH -J heat
+#SBATCH -o heat.o%j
+#SBATCH --ntasks=1
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=6
+#SBATCH -p shared,cui
+#SBATCH -t 0:02:00
 
 echo $SLURM_NODELIST
 
-srun ./laplace 100 100 5000
+srun ./laplace 100 100 5000 $SLURM_CPUS_PER_TASK
