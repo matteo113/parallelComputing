@@ -16,9 +16,9 @@ void save(Array2D<double> &matrix, std::string name) {
 
 int main() {
 
-  const int dimX = 200;
-  const int dimY = 200;
-  const int maxT = 40000;
+  const int dimX = 100;
+  const int dimY = 100;
+  const int maxT = 5000;
 
   Array2D<double> heat(dimX, dimY, 0); // La matrice de la chaleur
   Array2D<double> tmp(dimX, dimY, 0);  // Une matrice temporaire
