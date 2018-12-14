@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
 
 
   MPI_Barrier(MPI_COMM_WORLD);
-  double start = MPI_Wtime();
+  double start_tot = MPI_Wtime();
 
 	// Argument parsing
 	const int dimX = atoi(argv[1]);
@@ -162,6 +162,9 @@ int main(int argc, char **argv) {
 			}
 		}
 
+		MPI_Barrier(MPI_COMM_WORLD);
+	  double start_loop = MPI_Wtime();
+
 		//iteration step
 		for (int i = 0; i < iteration; i++) {
 
@@ -215,8 +218,14 @@ int main(int argc, char **argv) {
 			subHeat.unsafeSwap(subTmp);
 		}
 
+		MPI_Barrier(MPI_COMM_WORLD);
+	  double end_loop = MPI_Wtime();
+
 	// Gather evry submatrix in the mastermatrix on process 0
 	MPI_Gatherv(subHeat.data(), size_vec[myRank], MPI_DOUBLE, heat.data(), size_vec.data(), disp.data(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+	MPI_Barrier(MPI_COMM_WORLD);
+  double start_write = MPI_Wtime();
 
 	// Save master matrix in a file
 	if (myRank == 0) {
@@ -224,7 +233,13 @@ int main(int argc, char **argv) {
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-  double end = MPI_Wtime();
+  double end_tot = MPI_Wtime();
+
+	if (myRank == 0) {
+		std::cout<<"Loop time : "<<end_loop - start_loop<<std::endl;
+		std::cout<<"Write time : "<<end_tot - start_write<<std::endl;
+		std::cout<<"Total time : "<<end_tot - start_tot<<std::endl;
+	}
 
 	// Say goobye
 	MPI_Finalize();
