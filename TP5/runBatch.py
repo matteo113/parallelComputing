@@ -11,5 +11,5 @@ for t in threads:
         os.system('sbatch --cpus-per-task='+t+' --output=julia_thread_dynamic_'+t+'_'+l+'.o%j runtd.sh '+l)
 
 for c in cpus:
-    os.system('sbatch --ntasks='+c+' --output=julia_thread_simple_'+c+'.o%j runms.sh')
-    os.system('sbatch --ntasks='+c+' --output=julia_thread_simple_'+c+'.o%j runmst.sh')
+    os.system('sbatch --ntasks='+c+' --output=julia_mpi_simple_'+c+'.o%j runms.sh')
+    os.system('sbatch --ntasks='+c+' --output=julia_mpi_static_'+c+'.o%j runmst.sh')
