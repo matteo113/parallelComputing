@@ -7,4 +7,4 @@
 
 echo $SLURM_NODELIST
 
-srun ./julia_thread_simple -2 -2 2 2 0.285 0.013 500 2500 3000 thread_simple_$SLURM_CPUS_PER_TASK.pgm $SLURM_CPUS_PER_TASK
+srun ./julia_thread_simple -2 -2 2 2 0.285 0.013 5000 15000 20000 thread_simple_$SLURM_CPUS_PER_TASK.pgm $SLURM_CPUS_PER_TASK

@@ -5,4 +5,4 @@
 
 echo $SLURM_NODELIST
 
-srun ./julia_thread_simple -2 -2 2 2 0.285 0.013 500 2500 3000 mpi_simple_$SLURM_NTASKS.pgm
+srun ./julia_thread_simple -2 -2 2 2 0.285 0.013 5000 15000 20000 mpi_simple_$SLURM_NTASKS.pgm
