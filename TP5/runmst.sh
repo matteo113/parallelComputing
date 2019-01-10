@@ -1,6 +1,7 @@
 #!/bin/sh
 #SBATCH -J julia_mpi_simple
 #SBATCH -p shared,cui
+#SBATCH --constraint=E5-2630V4
 
 echo $SLURM_NODELIST
 
