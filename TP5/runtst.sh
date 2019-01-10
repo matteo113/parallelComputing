@@ -3,7 +3,6 @@
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
 #SBATCH -p shared,cui
-#SBATCH -t 0:10:00
 
 echo $SLURM_NODELIST
 

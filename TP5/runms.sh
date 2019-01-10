@@ -1,7 +1,6 @@
 #!/bin/sh
 #SBATCH -J julia_mpi_simple
 #SBATCH -p shared,cui
-#SBATCH -t 0:10:00
 
 echo $SLURM_NODELIST
 
