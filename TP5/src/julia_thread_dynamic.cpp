@@ -18,6 +18,8 @@ int main(int argc, char** argv){
 	int nThread = atoi(argv[11]);
 	int l = atoi(argv[12]);
 
+    auto start = std::chrono::steady_clock::now();
+
 	std::vector<std::thread> threads;
 
 	for (int i = 0; i < nThread; i++) {
@@ -25,9 +27,14 @@ int main(int argc, char** argv){
 	}
 
 	for(auto& t : threads) t.join();
+    auto end = std::chrono::steady_clock::now();
+
 
     // ecriture du resultat dans un fichier
     writePgm(domain, imax, filename);
+
+    auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout<<"Total execution time  : "<< delta.count() << "ms" << std::endl;
 
     return 0;
 }

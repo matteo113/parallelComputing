@@ -44,6 +44,8 @@ int main(int argc, char** argv){
     std::string filename(argv[10]);
 	int nThread = atoi(argv[11]);
 
+    auto start = std::chrono::steady_clock::now();
+
 	std::vector<int> mapping = getLinesMapping(nThread, domain.sizeY());                                                  // how many elements to send to each process
 
 	std::vector<std::thread> threads;
@@ -54,9 +56,13 @@ int main(int argc, char** argv){
 	}
 
 	for(auto& t : threads) t.join();
+    auto end = std::chrono::steady_clock::now();
 
     // ecriture du resultat dans un fichier
     writePgm(domain, imax, filename);
+
+    auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout<<"Total execution time  : "<< delta.count() << "ms" << std::endl;
 
     return 0;
 }
