@@ -1,0 +1,4 @@
+node187
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** STEP 13126049.0 ON node187 CANCELLED AT 2019-01-10T06:28:35 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 13126049 ON node187 CANCELLED AT 2019-01-10T06:28:35 DUE TO TIME LIMIT ***

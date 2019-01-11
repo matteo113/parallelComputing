@@ -4,7 +4,6 @@
 #include <functional>
 #include <mutex>
 
-int attributedLine = 0;
 std::mutex mut;
 
 // calcul la suite z = z*z+c jusqu'a ce que ||z||>bound
@@ -49,23 +48,23 @@ void juliaThreadStatic(const std::complex<double>& ll, const std::complex<double
     }
 }
 
-int attribLines(int l, Array2D<int> d){
-	int tmp = attributedLine;
-	attributedLine += l;
-	return tmp;
+int attribLines(int l, Array2D<int> d, int &attributedLine){
+    if (attributedLine < d.sizeY()){
+        int tmp = attributedLine;
+    	attributedLine += l;
+    	return tmp;
+    } else return -1 ;
 }
 
-void juliaThreadDynamic(const std::complex<double>& ll, const std::complex<double>& ur, const std::complex<double>& c, int imax, Array2D<int>& d, int l){
-    int myLines = 0;
-    while (attributedLine < d.sizeY()) {
+void juliaThreadDynamic(const std::complex<double>& ll, const std::complex<double>& ur, const std::complex<double>& c, int imax, Array2D<int>& d, int l, int &attributedLine){
+    while (true) {
         mut.lock();
-        if (attributedLine < d.sizeY()) {
-            myLines = attribLines( l, d);
-        } else{
-            mut.unlock();
+        int myLines = attribLines(l, d, attributedLine);
+        mut.unlock();
+
+        if (myLines == -1) {
             break;
         }
-        mut.unlock();
 
         for(int y = myLines; y < myLines + l && y < d.sizeY(); y++){
             for(int x=0; x<d.sizeX(); x++){

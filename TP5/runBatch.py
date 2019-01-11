@@ -1,10 +1,10 @@
 import os
 
-time = '01:00:00'
+time = '02:00:00'
 threads = ['1', '2', '4', '8', '10', '12', '16', '20']
 cpus = ['1', '10', '20', '40', '60', '80', '100', '120']
-#long = ['1', '10', '100', '1000', '10000']
-long = ['1', '10']
+long = ['1', '10', '100', '1000', '10000']
+#long = ['1', '10']
 
 for t in threads:
 #    os.system('sbatch --time='+time+' --cpus-per-task='+t+' --output=julia_thread_simple_'+t+'.o%j runts.sh')

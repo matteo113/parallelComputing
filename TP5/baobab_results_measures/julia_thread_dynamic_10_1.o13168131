@@ -1,4 +1,0 @@
-node161
-srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
-slurmstepd: error: *** JOB 13168131 ON node161 CANCELLED AT 2019-01-11T03:21:00 DUE TO TIME LIMIT ***
-slurmstepd: error: *** STEP 13168131.0 ON node161 CANCELLED AT 2019-01-11T03:21:00 DUE TO TIME LIMIT ***

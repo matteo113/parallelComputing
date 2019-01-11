@@ -6,6 +6,7 @@
 #include <functional>
 #include <thread>
 
+
 int main(int argc, char** argv){
 
     // initialisation des parametres
@@ -20,10 +21,11 @@ int main(int argc, char** argv){
 
     auto start = std::chrono::steady_clock::now();
 
+    int attributedLine = 0;
 	std::vector<std::thread> threads;
 
 	for (int i = 0; i < nThread; i++) {
-		threads.push_back(std::thread(juliaThreadDynamic, lowerLeft, upperRight, c, imax, std::ref(domain), l));
+		threads.push_back(std::thread(juliaThreadDynamic, lowerLeft, upperRight, c, imax, std::ref(domain), l, std::ref(attributedLine)));
 	}
 
 	for(auto& t : threads) t.join();
