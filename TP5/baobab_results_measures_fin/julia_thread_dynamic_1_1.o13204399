@@ -1,3 +1,0 @@
-node168
-srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
-slurmstepd: error: *** JOB 13204399 ON node168 CANCELLED AT 2019-01-11T15:30:11 ***

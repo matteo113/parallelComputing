@@ -12,8 +12,8 @@ def extractValuesFromFiles():
     threadResultsMapTotal = {1:{}, 2:{}, 4:{}, 8:{}, 10:{}, 12:{}, 16:{}, 20:{}}
 
     try:
-        for filename in os.listdir("./baobab_results_measures"):
-            with open("./baobab_results_measures/"+filename, 'r') as myfile:
+        for filename in os.listdir("./baobab_results_measures_fin"):
+            with open("./baobab_results_measures_fin/"+filename, 'r') as myfile:
 
                 data=myfile.read().replace('\n', '')
 
@@ -53,15 +53,6 @@ def main():
     dfThreadTotal = pandas.DataFrame(threadTotalDatas).transpose()
     dfMPITotal = pandas.DataFrame(mpiTotalDatas).transpose()
 
-    print(dfThreadTotal)
-    print(dfMPITotal)
-
-    dfThreadTotal.columns = { "Dynamic  (Thread) l = 10", "Dynamic  (Thread) l = 100", "Dynamic  (Thread) l = 1000", "Dynamic  (Thread) l = 10000", "Simple (Thread)", "Static (Thread)"}
-    dfMPITotal.columns = {"Simple (MPI)", "Static (MPI)"}
-
-    # Compute regression datas
-
-
     # Generate CSVs for archiving
     dfThreadTotal.to_csv("./csv/threadTotal.csv")
     dfMPITotal.to_csv("./csv/mpiTotal.csv")
@@ -69,8 +60,8 @@ def main():
 
     # ==============================================================
     # Execution Time Graph
-    # ==============================================================
-
+    # ==============================================================    
+    
     graphExecTime = dfThreadTotal.plot(kind='line', logy=True)
     dfMPITotal.plot(kind='line', ax=graphExecTime, linestyle="--")
     graphExecTime.set_title('Execution Time (Logarithmic scale on Y axis)', pad=20, fontdict={"fontsize":16,"fontweight":"bold"})
@@ -79,115 +70,63 @@ def main():
     plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))
     graphExecTime.get_figure().savefig("./graphs/execTime.pdf", bbox_inches='tight')
 
-    exit(0)
-
-
     # ==============================================================
     # Speedup Graph
     # ==============================================================
+    
+    speedupMPITotal = {"CPUs Number": [1, 10, 20, 40, 60, 80, 100, 120], "simple":[], "static":[]}
+    speedupThreadTotal = {"CPUs Number": [1, 2, 4, 8, 10, 12, 16, 20],"dynamic_100":[], "dynamic_1000":[], "static":[],"simple":[]}
 
-    estimatedGammasTotal = []
-    estimatedGammasLoopPlusWrite = []
+    for i in range(2):
+        for P, row in dfMPITotal.iterrows():
+            tseq = dfMPITotal[row.index[i]][1]
+            tpar = dfMPITotal[row.index[i]][P]
+            speedupMPITotal[str(row.index[i])].append(tseq/tpar)
 
-    cols = {2000, 3000, 4000}
-    dfLoop.columns = cols
-    dfLoopPlusWrite.columns = cols
-    dfTotal.columns = cols
+    for i in range(4):
+        for P, row in dfThreadTotal.iterrows():
+            tseq = dfThreadTotal[row.index[i]][1]
+            tpar = dfThreadTotal[row.index[i]][P]
+            speedupThreadTotal[str(row.index[i])].append(tseq/tpar)
 
-    for i in cols:
-        estimatedGammasTotal.append(1 - (dfLoop[i][1]/dfTotal[i][1]))
-        estimatedGammasLoopPlusWrite.append(1 - (dfLoop[i][1]/dfLoopPlusWrite[i][1]))
+    dfSpeedupMPI = pandas.DataFrame(speedupMPITotal)
+    dfSpeedupMPI.set_index("CPUs Number", inplace=True)
+    dfSpeedupThread = pandas.DataFrame(speedupThreadTotal)
+    dfSpeedupThread.set_index("CPUs Number", inplace=True)
 
-    estimatedGammaLoopPlusWrite = 0
-    estimatedGammaTotal = 0
+    dfSpeedupMPI.to_csv("./csv/speedupMPI.csv")
+    dfSpeedupThread.to_csv("./csv/speedupThread.csv")
 
-    for e in estimatedGammasLoopPlusWrite:
-        estimatedGammaLoopPlusWrite += e
-    for e in estimatedGammasTotal:
-        estimatedGammaTotal += e
+    speedupBestThread = {"CPUs Number": [1, 2, 4, 8, 10, 12, 16, 20], "Best Speedup":[1, 2, 4, 8, 10, 12, 16, 20]}
+    dfSpeedupBestThread = pandas.DataFrame(speedupBestThread)
+    dfSpeedupBestThread.set_index("CPUs Number", inplace=True)
 
-    estimatedGammaLoopPlusWrite = estimatedGammaLoopPlusWrite/len(estimatedGammasLoopPlusWrite)
-    estimatedGammaTotal = estimatedGammaTotal/len(estimatedGammasTotal)
-
-    print("Estimated Gamma Loop + Write = "+str(estimatedGammaLoopPlusWrite))
-    print("Estimated Gamma Total = "+str(estimatedGammaTotal))
-
-    # Estimated Gamma Loop + Write
-    speedupEstimatedGammaLoopPlusWrite = {"CPUs Number": [1, 2, 10, 20, 40, 60, 80, 100, 120], "Estimated Gamma Loop + Write Speedup (γ = "+str(estimatedGammaLoopPlusWrite)+")": []}
-    for p in speedupEstimatedGammaLoopPlusWrite["CPUs Number"]:
-        speedupEstimatedGammaLoopPlusWrite["Estimated Gamma Loop + Write Speedup (γ = "+str(estimatedGammaLoopPlusWrite)+")"].append(1 / (estimatedGammaLoopPlusWrite + ((1-estimatedGammaLoopPlusWrite)/p)))
-
-    # Estimated Gamma Total
-    speedupEstimatedGammaTotal = {"CPUs Number": [1, 2, 10, 20, 40, 60, 80, 100, 120], "Estimated Gamma Total Speedup (γ = "+str(estimatedGammaTotal)+")": []}
-    for p in speedupEstimatedGammaTotal["CPUs Number"]:
-        speedupEstimatedGammaTotal["Estimated Gamma Total Speedup (γ = "+str(estimatedGammaTotal)+")"].append(1 / (estimatedGammaTotal + ((1-estimatedGammaTotal)/p)))
-
-    # Theoretical Gamma 0.1
-    speedupTheoretical01 = {"CPUs Number": [1, 2, 10, 20, 40, 60, 80, 100, 120], "Theoretical Speedup for γ = 0.1": []}
-    for p in speedupTheoretical01["CPUs Number"]:
-        speedupTheoretical01["Theoretical Speedup for γ = 0.1"].append(1 / (0.1 + ((1-0.1)/p)))
-
-    # Theoretical Gamma 0.05
-    speedupTheoretical005 = {"CPUs Number": [1, 2, 10, 20, 40, 60, 80, 100, 120], "Theoretical Speedup for γ = 0.05": []}
-    for p in speedupTheoretical005["CPUs Number"]:
-        speedupTheoretical005["Theoretical Speedup for γ = 0.05"].append(1 / (0.05 + ((1-0.05)/p)))
-
-    speedupLoop = {"CPUs Number": [1, 2, 10, 20, 40, 60, 80, 100, 120], "2000x2000 Main Loop Speedup":[], "3000x3000 Main Loop Speedup":[], "4000x4000 Main Loop Speedup":[]}
-    speedupLoopPlusWrite = {"CPUs Number": [1, 2, 10, 20, 40, 60, 80, 100, 120], "2000x2000 Main Loop + Write Speedup":[], "3000x3000 Main Loop + Write Speedup":[], "4000x4000 Main Loop + Write Speedup":[]}
-
-    dfLoop.columns = {"2000x2000 Main Loop Speedup", "3000x3000 Main Loop Speedup", "4000x4000 Main Loop Speedup"}
-    dfLoopPlusWrite.columns = {"2000x2000 Main Loop + Write Speedup", "3000x3000 Main Loop + Write Speedup", "4000x4000 Main Loop + Write Speedup"}
-
-    for i in range(3):
-        for P, row in dfLoop.iterrows():
-            tseq = dfLoop[row.index[i]][1]
-            tpar = dfLoop[row.index[i]][P]
-            speedupLoop[str(row.index[i])].append(tseq/tpar)
-        for P, row in dfLoopPlusWrite.iterrows():
-            tseq = dfLoopPlusWrite[row.index[i]][1]
-            tpar = dfLoopPlusWrite[row.index[i]][P]
-            speedupLoopPlusWrite[str(row.index[i])].append(tseq/tpar)
-
-    dfSpeedupLoop = pandas.DataFrame(speedupLoop)
-    dfSpeedupLoop.set_index("CPUs Number", inplace=True)
-
-    dfSpeedupLoopPlusWrite = pandas.DataFrame(speedupLoopPlusWrite)
-    dfSpeedupLoopPlusWrite.set_index("CPUs Number", inplace=True)
-
-    dfSpeedupTheoritical01 = pandas.DataFrame(speedupTheoretical01)
-    dfSpeedupTheoritical01.set_index("CPUs Number", inplace=True)
-
-    dfSpeedupTheoritical005 = pandas.DataFrame(speedupTheoretical005)
-    dfSpeedupTheoritical005.set_index("CPUs Number", inplace=True)
-
-
-    dfSpeedupEstimatedGammaLoopPlusWrite = pandas.DataFrame(speedupEstimatedGammaLoopPlusWrite)
-    dfSpeedupEstimatedGammaLoopPlusWrite.set_index("CPUs Number", inplace=True)
-
-    dfSpeedupEstimatedGammaTotal = pandas.DataFrame(speedupEstimatedGammaTotal)
-    dfSpeedupEstimatedGammaTotal.set_index("CPUs Number", inplace=True)
-
-
-    dfSpeedupLoop.to_csv("./csv/speedupLoop.csv")
-    dfSpeedupLoopPlusWrite.to_csv("./csv/speedupLoopPlusWrite.csv")
-    dfSpeedupTheoritical01.to_csv("./csv/speedupTheoritical01.csv")
-    dfSpeedupTheoritical005.to_csv("./csv/speedupTheoritical005.csv")
-    dfSpeedupEstimatedGammaLoopPlusWrite.to_csv("./csv/speedupEstimatedGammaLoopPlusWrite.csv")
-    dfSpeedupEstimatedGammaTotal.to_csv("./csv/speedupEstimatedGammaTotal.csv")
-
-    graphSpeedup = dfSpeedupLoop.plot(kind='line')
-    dfSpeedupLoopPlusWrite.plot(kind='line', ax=graphSpeedup, linestyle="--")
-    dfSpeedupTheoritical01.plot(kind='line', ax=graphSpeedup, linestyle=":")
-    dfSpeedupTheoritical005.plot(kind='line', ax=graphSpeedup, linestyle=":")
-    dfSpeedupEstimatedGammaLoopPlusWrite.plot(kind='line', ax=graphSpeedup, linestyle="-.")
-    dfSpeedupEstimatedGammaTotal.plot(kind='line', ax=graphSpeedup, linestyle="-.")
-
-    graphSpeedup.set_title('Speedup', pad=20, fontdict={"fontsize":16,"fontweight":"bold"})
+    speedupBestMPI = {"CPUs Number": [1, 10, 20, 40, 60, 80, 100, 120], "Best Speedup":[1, 10, 20, 40, 60, 80, 100, 120]}
+    dfSpeedupBestMPI = pandas.DataFrame(speedupBestMPI)
+    dfSpeedupBestMPI.set_index("CPUs Number", inplace=True)
+    
+    graphSpeedup = dfSpeedupMPI.plot(kind='line')
+    graphSpeedup.set_ylim(0, 120)
+    dfSpeedupBestMPI.plot(kind='line', ax=graphSpeedup, linestyle="--")
+    graphSpeedup.set_title('MPI Speedup', pad=20, fontdict={"fontsize":16,"fontweight":"bold"})
     graphSpeedup.set_xlabel("CPUs Number", labelpad=20, fontsize=12, fontweight="semibold")
     graphSpeedup.set_ylabel("Speedup", labelpad=20, fontsize=12, fontweight="semibold")
 
     plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))
+    plt.axis("scaled")
+    graphSpeedup.get_figure().savefig("./graphs/speedupMPI.pdf", bbox_inches='tight')
 
-    graphSpeedup.get_figure().savefig("./graphs/speedup.pdf", bbox_inches='tight')
+    graphSpeedup = dfSpeedupThread.plot(kind='line')
+    dfSpeedupBestThread.plot(kind='line', ax=graphSpeedup, linestyle="--")
+    graphSpeedup.set_title('Thread Speedup', pad=20, fontdict={"fontsize":16,"fontweight":"bold"})
+    graphSpeedup.set_xlabel("CPUs Number", labelpad=20, fontsize=12, fontweight="semibold")
+    graphSpeedup.set_ylabel("Speedup", labelpad=20, fontsize=12, fontweight="semibold")
+
+    plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.5))
+    plt.axis("scaled")
+
+    graphSpeedup.get_figure().savefig("./graphs/speedupThread.pdf", bbox_inches='tight')
+
+
 
 main()

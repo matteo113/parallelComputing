@@ -1,4 +1,0 @@
-node192
-slurmstepd: error: *** JOB 13204434 ON node192 CANCELLED AT 2019-01-11T15:30:11 ***
-srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
-slurmstepd: error: *** STEP 13204434.0 ON node192 CANCELLED AT 2019-01-11T15:30:11 ***
