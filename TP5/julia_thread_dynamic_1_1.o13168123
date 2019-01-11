@@ -1,0 +1,4 @@
+node178
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** STEP 13168123.0 ON node178 CANCELLED AT 2019-01-11T03:19:31 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 13168123 ON node178 CANCELLED AT 2019-01-11T03:19:31 DUE TO TIME LIMIT ***
