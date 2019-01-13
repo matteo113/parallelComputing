@@ -60,8 +60,8 @@ def main():
 
     # ==============================================================
     # Execution Time Graph
-    # ==============================================================    
-    
+    # ==============================================================
+
     graphExecTime = dfThreadTotal.plot(kind='line', logy=True)
     dfMPITotal.plot(kind='line', ax=graphExecTime, linestyle="--")
     graphExecTime.set_title('Execution Time (Logarithmic scale on Y axis)', pad=20, fontdict={"fontsize":16,"fontweight":"bold"})
@@ -73,9 +73,9 @@ def main():
     # ==============================================================
     # Speedup Graph
     # ==============================================================
-    
+
     speedupMPITotal = {"CPUs Number": [1, 10, 20, 40, 60, 80, 100, 120], "simple":[], "static":[]}
-    speedupThreadTotal = {"CPUs Number": [1, 2, 4, 8, 10, 12, 16, 20],"dynamic_100":[], "dynamic_1000":[], "static":[],"simple":[]}
+    speedupThreadTotal = {"CPUs Number": [1, 2, 4, 8, 10, 12, 16, 20],"dynamic_100":[], "dynamic_1000":[], "dynamic_10000":[], "static":[],"simple":[]}
 
     for i in range(2):
         for P, row in dfMPITotal.iterrows():
@@ -83,7 +83,7 @@ def main():
             tpar = dfMPITotal[row.index[i]][P]
             speedupMPITotal[str(row.index[i])].append(tseq/tpar)
 
-    for i in range(4):
+    for i in range(5):
         for P, row in dfThreadTotal.iterrows():
             tseq = dfThreadTotal[row.index[i]][1]
             tpar = dfThreadTotal[row.index[i]][P]
@@ -104,7 +104,7 @@ def main():
     speedupBestMPI = {"CPUs Number": [1, 10, 20, 40, 60, 80, 100, 120], "Best Speedup":[1, 10, 20, 40, 60, 80, 100, 120]}
     dfSpeedupBestMPI = pandas.DataFrame(speedupBestMPI)
     dfSpeedupBestMPI.set_index("CPUs Number", inplace=True)
-    
+
     graphSpeedup = dfSpeedupMPI.plot(kind='line')
     graphSpeedup.set_ylim(0, 120)
     dfSpeedupBestMPI.plot(kind='line', ax=graphSpeedup, linestyle="--")
