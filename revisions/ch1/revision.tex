@@ -1,0 +1,88 @@
+% !TeX spellcheck = en_GB
+\documentclass[12pt,a4paper,oneside, titlepage]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{url}
+\usepackage{mathtools}
+\usepackage{enumitem}
+\setitemize{noitemsep,topsep=20pt,parsep=10pt,partopsep=0pt}
+\setlist[enumerate]{label*=\arabic*.}
+\usepackage{authblk}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    citecolor=black,
+    linkcolor=black,
+    urlcolor=black,
+    linktoc=all
+}
+\usepackage[a4paper]{geometry}
+\renewcommand{\familydefault}{\sfdefault}
+\graphicspath{ {../../docs/} }
+\newcommand{\todo}[1]{\par \textcolor{blue}{\textbf{To-Do $\mathbb{\to}$ #1}}\par}
+\setcounter{tocdepth}{2}
+\usepackage[font=small,labelfont=bf]{caption} % Required for specifying captions to tables and figures
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{arydshln}
+\def\arraystretch{2.5}
+\setlength\tabcolsep{20pt}
+
+\newcommand{\rpm}{\raisebox{.2ex}{$\scriptstyle\pm$}}
+
+\begin{document}
+\renewcommand{\labelitemi}{$\bullet$}
+\setlength\parindent{0pt}
+
+\section*{Chapitre 1}
+
+\subsection*{Du parallélisme à l'architecture de von Neumann}
+
+Contextes
+
+\begin{itemize}
+\item 40's - Von Neumann étudie la possibilité de faire une machine imitant le cerveau (Automate cellulaire -> Prototype de machine parallèle SIMD)
+\item 40's - Arbitrage et gestion des ressources compliquées
+\end{itemize}
+
+Notions clés : 
+
+\begin{itemize}
+\item Ordinateur humain parallèle
+\item Architecture von Neumann -> Unité centrale de traitement lisant une liste d'instructions
+\item Intensité Arithmétique $l$: Nb opérations en virgule flottante réalisés pour chaque byte lu en mémoire. Plus $l$ est grand plus une même donnée donne lieu a beaucoup de calcul.
+\item Logiciel est CPU-Bound avec une intensité arithmétique forte
+\item Logiciel est Memory-Bound avec une intensité arithmétique faible
+\end{itemize}
+Date clés :
+
+\begin{itemize}
+\item 1945 - ENIAC (Plusieurs unités arithmétiques simultanées)
+\end{itemize}
+
+\subsection*{Origine}
+L'homme s'est inspirés des modèles de calcul naturels et l'organisant de la façon dont il est habitué (Coopération, partage des tâches entre plusieurs personnes pour travaux manuels (Muraille de Chine et calculatoires (Calcul Astronomie). \newline
+
+\subsection*{Architecture Von Neumann}
+Von Neumann propose une architecture basée sur une unité centrale de traitement qui lit une liste d'instructions et de données. Chaque instructions est exécutée et correspond à une opération entre plusieurs données. Les emplacements mémoire des données sont précisées par l'instruction en elle même.\newline
+
+\textbf{Point(s) fort(s)}:
+
+\begin{itemize}
+\item Simplicité (Réalisable sur circuit électronique -> a permis le développement conjoint du hardware et du software)
+\end{itemize}
+
+\textbf{Point(s) faible(s)} :
+
+\begin{itemize}
+\item Performance (Vitesse traitement > vitesse d'accès aux données -> Liaison mémoire/CPU : Von Neumann Bottleneck)
+\end{itemize}
+
+
+\end{document}

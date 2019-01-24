@@ -24,49 +24,48 @@
 
 	\section*{Introduction}
 
-		Le but de ce TP est de réaliser une analyse des différentes stratégies de load balancing sur un arlgorithme.
-		L'arlgorithme choisi est le calcule de l'ensemble de Julia. Lensemble de Julia comprends tout les points $z$ représentés sur un plan complexe pour lesquels la suite
+		Le but de ce TP est de réaliser une analyse des différentes stratégies de load balancing sur un algorithme.
+		L'algorithme choisi est le calcul de l'ensemble de Julia. L'ensemble de Julia comprend tout les points $z$ représentés sur un plan complexe pour lesquels la suite :
 
 		$$z_{n+1} = z^{2}_{n} + c$$
 
 		ne diverge pas.
 
-		Dans notre cas nous nous concentrerons sur la portion du plan complexe $[-2, 2] \times [-2i, -2i] \in \mathbb{C}$
+		Dans notre cas, nous nous concentrerons sur la portion du plan complexe $[-2, 2] \times [-2i, -2i] \in \mathbb{C}$
 
-		Le gros avantage d'utiliser cet arlgorithme est que c'est un arlgorithme complètement local, qui ne nécessite aucune communication.
-		Grâce à cela il est possible d'analyser les performances des différentes stratégies sans parasite.
+		L'un des gros avantages d'utiliser cet algorithme réside dans le fait qu'il s'agisse d'un algorithme complètement local, qui ne nécessite aucune communication.
+		Grâce à cela, il est possible d'analyser les performances des différentes stratégies sans parasite.
 
 		\subsection*{Répartition simple}
 			Le but de la répartition simple est de diviser la matrice de façon équitable, c'est la stratégie que nous avions implémenté pour le TP4.
-			Si on a une matrice $m \times n$ ou $m$ est la largeur et $n$ la hauteur de la matrice, alors on répartis les lignes de la matrice en sous matrices de dimenssion
-			$\frac{n}{P}$ où  $P$ est le nombre de processeurs ou de threads disponibles.
+			Si on a une matrice $m \times n$ ou $m$ est la largeur et $n$ la hauteur de la matrice, alors on répartit les lignes de la matrice en sous-matrices de dimensions
+			$\frac{n}{P}$ où $P$ est le nombre de processeurs ou de threads disponibles.
 
 		\subsection*{Répartition statique}
-		 Dans la répartition static, chaque processeurs ou threads traite $\frac{n}{P}$ lignes, comme dans la répartition simple. Cependant, au lieu de prendre des blocs de lignes qui se suivent on leur atribue des lignes à interval régulier.
-		 Pour un processeur d'indice $i$, on lui atribuera les lignes d'indice $j$ qui remplissent l'équation suivante $$j \equiv i \mathrm{mod} P$$
-
+			Dans la répartition statique, chaque processeur ou threads traite $\frac{n}{P}$ lignes, comme dans la répartition simple. Cependant, au lieu de prendre des blocs de lignes qui se suivent, on leur attribue des lignes à intervalle régulier.
+			Pour un processeur d'indice $i$, on lui attribuera les lignes d'indice $j$ qui remplissent l'équation suivante $$j \equiv i \mathrm{mod} P$$
 		\subsection*{Répartition Dynamique}
-			Dans le processus de répartition dynamique, c'est les threads ou les processeurs qui vont "chercher" les lignes à traiter, plutôt qu'un mechanisme externe qui les leurs attribues.
-			Basiquement, chaque thread va checher un sous domaine de taille arbitraire fixé, il le traite, puis va chercher un autre sous domaine. Chaque threads répète ces opérations jusqu'à ce que qu'il ne reste plus de lignes à traiter dans le domaine principal.
+			Dans le processus de répartition dynamique, ce sont les threads ou les processeurs qui vont "chercher" les lignes à traiter, plutôt qu'un mécanisme externe qui les leur attribue.
+			Baraquement, chaque thread va chercher un sous-domaine de taille arbitraire fixé, il le traite, puis va chercher un autre sous domaine. Chaque thread répète ces opérations jusqu'à ce qu'il ne reste plus de lignes à traiter dans le domaine principal.
 
-			L'avantage principal de cette méthode est que, dans le cas ou pas tout les threads travaillent à la même vitesse, les plus lents ne ralentirons pas l'exécution totale de l'algorithme.
+			L'avantage principal de cette méthode est que, dans le cas ou pas tout les threads travaillent à la même vitesse, la plus lente ne ralentirons pas l'exécution totale de l'algorithme.
 			Il faut cependant s'assurer que les threads ne s'attribuent pas le même sous domaine. Il faut donc prendre en compte l'exclusion mutuelle de la fonction d'attribution.
 
 	\section*{Méthode}
-		 Pour commencer, nous avons implémenté les trois stratégies de répartition de charge avec les threads et les statégies simple et static avec MPI.
+		 Pour commencer, nous avons implémenté les trois stratégies de répartition de charge avec les threads et les stratégies simple et statique avec MPI.
 
-		 On a ensuite effectué des mesures de temps d'exécution en se concentrant sur sur l'exécution de l'algorithme de Julia (on ne mesure pas le temps d'exécution de l'image).
+		On a ensuite effectué des mesures de temps d'exécution en se concentrant sur l'exécution de l'algorithme de Julia (on ne mesure pas le temps d'exécution de l'image).
 
-		 Comme c'est la valeur de $c$ qui détermine la forme du fractal, on a commencé par choisir une valeur qui donnait une image intéressante. Nous avons décidé d'utiliser $c = 0.285 + 0.013\ i$.
+		Comme c'est la valeur de $c$ qui détermine la forme du fractal, on a commencé par choisir une valeur qui donnait une image intéressante. Nous avons décidé d'utiliser $c = 0.285 + 0.013\ i$.
 
-		 Les algorithmes ont étés exécutés respectivement avec 1, 2, 4, 8, 10, 12, 16 et 20 coeurs pour les threads et 1, 10, 20, 40, 60, 80, 100 et 120 coeurs avec MPI avec des matrices de hauteur 15'000 et de largeur 20'000 pour un total de maximum 5000 itérations.
+		Les algorithmes ont étés exécutés respectivement avec 1, 2, 4, 8, 10, 12, 16 et 20 coeurs pour les threads et 1, 10, 20, 40, 60, 80, 100 et 120 coeurs avec MPI avec des matrices de hauteur 15'000 et de largeur 20'000 pour un total de maximum 5000 itérations.
 
-		 Pour la stratégie Dynamique nous avons également décidé d'exécuter l'algorithme avec des sous domaine de hauteur 1, 10, 100, 1000 et 10'000.
+Pour la stratégie Dynamique, nous avons également décidé d'exécuter l'algorithme avec des sous-domaines de hauteur 1, 10, 100, 1000 et 10'000.
 
 	\newpage
 	\section*{Résultats}
 
-		Afin de pouvoir intégrer une image d'exemple dans ce raport nous avons exécuté l'algorithme trivial en local avec un domaine de 1500 par 2000 et une nombre maximum d'itération de 500.
+ 		Afin de pouvoir intégrer une image d'exemple dans ce rapport nous avons exécuté l'algorithme trivial en local avec un domaine de 1500 par 2000 et un nombre maximum d'itération de 500.
 
 		\begin{figure}[H]
 			\centering
@@ -76,7 +75,7 @@
 
 		\newpage
 
-		Les données dans les deux tableaux suivants correspondent aux mesures de temps, en $ms$. Toute l'agrégation des données et les graphs ont été réalisés grâce à un script python.
+		 Les données dans les deux tableaux suivants correspondent aux mesures de temps, en $ms$. Toute l'agrégation des données et les graphes ont été réalisés grâce à un script python.
 
 		\begin{table}[H]
 			\centering
@@ -93,7 +92,7 @@
 				\multicolumn{1}{|c|}{\cellcolor[HTML]{EFEFEF}\textbf{100}} & 20076.0                                                                             & 20271.0                                                                             \\ \hline
 				\multicolumn{1}{|c|}{\cellcolor[HTML]{EFEFEF}\textbf{120}} & 16871.0                                                                             & 19662.0                                                                             \\ \hline
 			\end{tabular}
-			\caption{Temps d'exécution des algorithmes MPI}
+			\caption{Temps d'exécution des algorithmes MPI en ms}
 		\end{table}
 
 
@@ -112,7 +111,7 @@
 				\multicolumn{1}{|c|}{\cellcolor[HTML]{EFEFEF}\textbf{16}} & 103812.0                                                           & 83837.0                                                             & 88526.0                                                      & 41425.0                                                      \\ \hline
 				\multicolumn{1}{|c|}{\cellcolor[HTML]{EFEFEF}\textbf{20}} & 105511.0                                                           & 82531.0                                                             & 77023.0                                                      & 40102.0                                                      \\ \hline
 			\end{tabular}
-			\caption{Temps d'exécution des algorithmes avec des threads}
+			\caption{Temps d'exécution des algorithmes avec des threads en ms}
 		\end{table}
 
 		\newpage
@@ -122,7 +121,7 @@
 		\begin{figure}[H]
 			\centering
 			\includegraphics[scale=0.85]{graphs/execTime}
-			\caption {Temps d'exécution de chaque algorithmes}
+			\caption {Temps d'exécution de chaque algorithmes en ms}
 		\end{figure}
 
 		\newpage
@@ -188,17 +187,18 @@
 
 	\section*{Conclusion}
 
-		En regardant les résultats présentés dans la section précédente, la première chose que l'on peut remarquer c'est que pour les mêmes stratégies de load balancing, les implémentations utilisant des threads sont sensiblement plus rapides.
-		Cette différence est principalement due au calcule de la divergence. En effet, dans une implémentation avec des threads, la matrice est partagée entre chaque threads, chaque threads a la vision globale de la matrice. Alors que dans l'implé MPI la fonction Julia travaille toujours sur un sous domaine sans avoir la "vision d'ensemble" du reste du domaine. Il devient donc nécessaire de projeter le plan complex sur le domaine, ce qui rajoutte une nombre comparable d'opérations, surtout pour l'implémentation static.
+		En regardant les résultats présentés dans la section précédente, la première chose que l'on peut remarquer, c'est que pour les mêmes stratégies de load balancing, les implémentations utilisant des threads sont sensiblement plus rapides.
+		Cette différence est principalement due au calcul de la divergence. En effet, dans une implémentation avec des threads, la matrice est partagée entre chaque thread, chaque thread a la vision globale de la matrice. Alors que dans l'implémentation MPI, la fonction Julia travaille toujours sur un sous-domaine sans avoir la "vision d'ensemble" du reste du domaine. Il devient donc nécessaire de projeter le plan complexe sur le domaine, ce qui rajoute un nombre comparable d'opérations, surtout pour l'implémentation statique.
 
-		En regardant le graph des temps d'exécution ainsi que celui du speedup que dans notre cas la répartition static avec les threads est la plus performante. Cependant, la répartition dynamique est à peine plus lentes avec peu de CPU et que l'écart se creuse en augmentant le nombre de CPU.
-		Ceci pourrait être du au choix de $l$ qui a été fait. En effet, la taille du sous domaine corrèlée avec le nombre de CPU influencent sur les performences.
+		En regardant le graphe des temps d'exécution ainsi que celui du speedup que dans notre cas la répartition statique avec les threads est la plus performante. Cependant, la répartition dynamique est à peine plus lentes avec peu de CPU et que l'écart se creuse en augmentant le nombre de CPU.
+		Ceci pourrait être du au choix de $l$ qui a été fait. En effet, la taille du sous-domaine corrèlée avec le nombre de CPU influencent sur les performances.
 
-		J'ai par exemple effectué effectué un test (pas représenté dans les tableaux pour des raisons de lisibilité, mais les données sont visibles sur les graphs) avec un sous-domaine ayant une hauteur de 10'000 et l'on remarque qu'à partir de 2 CPU le temps d'execution stagne. En effet, avec cette stratégie d'allocation, seuls deux CPUs peuvent être utilisés pour ces valeurs (domaines de 15'000 et sous domaine de 10'000).
+		J'ai par exemple effectué un test (pas représenté dans les tableaux pour des raisons de lisibilité, mais les données, sont visibles sur les graphes) avec un sous-domaine ayant une hauteur de 10'000 et l'on remarque qu'à partir de 2 CPU le temps d'exécution stagne. En effet, avec cette stratégie d'allocation, seuls deux CPUs peuvent être utilisés pour ces valeurs (domaines de 15'000 et sous-domaine de 10'000).
 
-		Dans la même idée, en choisissant un l trop petit, les threads effectuent rapidement le calcul pour leur sous-domaine, par contre, comme la fonction d'atribution d'un nouveau sous-domaine est en exclusion mutuelle, ils passeront beacoup de temps à attendre pour pouvoir executer cette dernière. J'avais effectué un test avec l=1, cependant, en raison du temps d'execution trop élevé, je n'ai pas pu obtenir de résultats utilisables.
+		Dans la même idée, en choisissant un l trop petit, les threads effectuent rapidement le calcul pour leur sous-domaine, par contre, comme la fonction d'attribution d'un nouveau sous-domaine est en exclusion mutuelle, ils passeront beaucoup de temps à attendre pour pouvoir exécuter cette dernière. J'avais effectué un test avec l=1, cependant, en raison du temps d'exécution trop élevé, je n'ai pas pu obtenir de résultats utilisables.
 
-		Si je devais refaire ce travail, je prendrais beaucoup plus de mesure pour chaques paramètres, de cette façon il serait possible de faire une moyenne des résultats pour obtenir des graphs un peu plus précis.
+		Si je devais refaire ce travail, je prendrais beaucoup plus de mesure pour chaque paramètres, de cette façon, il serait possible de faire une moyenne des résultats pour obtenir des graphes un peu plus précis.
+
 
 
 
