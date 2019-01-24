@@ -186,7 +186,7 @@
 
     \subsection*{hypercube}
 
-      \begin{figure}[H]subsection name
+      \begin{figure}[H]
         \centering
         \includegraphics[width=0.5\textwidth]{images/hyp}
         \caption{Topologie hypercube de degré 4}
@@ -211,7 +211,7 @@
 
     \subsection*{Arbres binaires}
 
-      \begin{figure}[H]subsection name
+      \begin{figure}[H]
         \centering
         \includegraphics[width=0.5\textwidth]{images/tree}
         \caption{Topologie Arbre binaire}
@@ -241,11 +241,139 @@
         \item Important de combiner deux opération si pas cyclique
         \item "Shuffle exchange" = combinaison de shuffle et exchange (no shit)
         \begin{itemize}
-          \item Degré : $D = 3$
+          \item Degré = 3
           \item Prix = $3N$
           \item Scalabilité compliqué car si $N++$ les connexions changent
-
+          \item Largeur bisectionnelle = $N/2$
+          \item Diamètre : $D = 2 log_2 (N) -1$
+          \item Routage : on "déplace" les bits avec l'opération de shuffle ($s()$) et on les corrige avec l'exchange ($e()$).
+                Par exemple, pour aller de $0010$ à $1100$ on fait $e(0010) \to s(0011) \to s(1001) \rightarrow 1100$
         \end{itemize}
+      \end{itemize}
+
+    \subsection*{Réseaux totalement connectés et réseaux aléatoires}
+      \begin{itemize}
+        \item Réseaux totalement connectés pas envisagebale mais théoriquement intéressant
+        \begin{itemize}
+          \item Degré = $N-1$ $\implies$ $\sim N^2$ connexions
+          \item Diamètre : $D = 1$
+          \item Largeur bisectionnelle = $N^2/4$
+        \end{itemize}
+      \end{itemize}
+
+  \section*{Réseaux dynamiques}
+
+    Certains problèmes sont plus ou moins adaptés  certains type de topologie.
+    Un réseaux dynamique permet donc un gain de polyvalence pour une machine à but général.
+    Cela implique une pénalité de prix et de complexité.
+
+    Dans l'ordre croissant de complexité et prix on a :
+
+    \begin{itemize}
+      \item  Les connexions par un bus
+      \item  Les réseaux de commutateurs multiétages et arbres dynamiques
+      \item  Les réseaux crossbar
+    \end{itemize}
+
+    \subsection*{Connexions par bus}
+
+    \subsection*{Arbres binaires}
+
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\textwidth]{images/bus}
+        \caption{Connexion par bus}
+      \end{figure}
+
+      \begin{itemize}
+        \item Proche d'un ordinateur séquentiel
+        \item Utilisé dans plusieurs multiprocesseurs symétriques
+        \item Limité à des systèmes avec peu de processeurs
+        \item En général on a :
+        \begin{itemize}
+          \item Un bus de données
+          \item Un bus d'adressage
+          \item Un bus d'arbitrage (gestion des conflits)
+          \item Un bus de synchronisation et d'interruptions
+        \end{itemize}
+        \item Il faut concidérer le temps de latence plutot que de diamètre du réseau
+        \item La latence ne dépends presque pas de $N$
+        \item La Bandwidth est inversemment proportionelle à $N$
+        \item Bandwidth Limitée par la réquence du bus et la largeur du chemin.
+        \item Arbitrage d’un bus :
+        \begin{itemize}
+          \item Priorité fixe (daisy chaining) : l'unité avec la priorité la plus haute l'emporte (possibilité de starvation)
+          \item Découpage en tranche : interval de temps
+          \item Priorité dynamique : même principe que le daisy chaining mais avec possibilité de changer la priorité au cours du temps (par ex premier arrivé, premier servi)
+        \end{itemize}
+      \end{itemize}
+
+    \subsection*{Crossbar switch}
+
+      Un crossbar switch est une grille dont chaque point d’intersection est un commutateur qui permet de relier entre eux deux éléments.
+
+      \begin{itemize}
+        \item Possibilité de réaliser une topologie en étoile
+        \item On peut concidérer un crossbar comme un commu $N \times N$ permettant $N!$ états différents de communication one to one
+        \item Possible d'étalire $N$ chemins simultanés tant que les élements de destinations sont différents
+        \item Temps de latence dépends des commu et non de $N$
+        \item Coup de $N^2$ pour les commutateurs et $N$ pour les fils
+      \end{itemize}
+
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\textwidth]{images/cross}
+        \caption{Schéma d’un crossbar $8 \times 8$. Les éléments notés $s$ apparaissant aux points de croisement sont les switches. Cet exemple montre une situation où 8 processeurs sont reliés à 8 mémoires.}
+      \end{figure}
+
+    \subsection*{Réseaux multiétages}
+
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.3\textwidth]{images/multi1}
+      \includegraphics[width=0.3\textwidth]{images/multi2}
+      \caption{Réseau multiétage $4 \times 4$}
+    \end{figure}
+
+      \begin{itemize}
+        \item Similaire au crossbar mais avec un essemble de commutateurs $2 \times 2$ plutôt que $N \times N$
+        \item une combinaison entrée sortie contraint les autres combinaisons $\implies$ toutes les permutations d'entrée/sortie ne sont pas possibles.
+      \end{itemize}
+
+      \subsubsection*{Réseaux Oméga}
+
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\textwidth]{images/omega}
+        \caption{Réseau multiétage oméga 8 entrées}
+      \end{figure}
+
+      \begin{itemize}
+        \item Basé sur une topologie "perfect shuffle"
+        \item On a $log_2 N$ colones $N/2$ commutateurs $2\times2$ avec duplification
+        \item Cout de $N log_2 N$
+        \item possibilité de Broadcast (duplifiage sur toute les couches)
+        \item Routage : Adresse en binaire de $log_2 N$ bits, chaque bite correspond à une couche, si 0 sortie haut si 1 sortie bas
+        \item chemins uniques $\implies$ possibilité de blocage
+      \end{itemize}
+
+    \subsubsection*{Fat-tree}
+
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\textwidth]{images/ftree}
+        \caption{Réseau Fat Tree}
+      \end{figure}
+
+      Réseau en arbre ou les processeurs se situent aux extrémités et les noeuds sont des switches
+
+      \begin{itemize}
+        \item l'épaisseur augmente plus on se raproche de la racine (plus de transit de message)
+        \item Latence = $2 log_2(N) - 1$
+        \item Routage similaire à un arbre binaire static (avec équilibrage des charges sur les sections redondantes)
+        \item Largeur bisectionnelle $log_2 N$
+        \item A remplacé petit à petit l'hypercube dans les machines fortement parallèles
+        \item Bien adapté aux architectures à mémoire distribuée
       \end{itemize}
 
 \end{document}
